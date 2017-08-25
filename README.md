@@ -45,12 +45,12 @@ openHAB OK - CLOSED
 Arguments
 ---------
 
-arg                 | explain
------------------------------
-`--host` / `-H`     | **Required.** Host your openHAB 2 installation is running on
-`--port` / `-P`     | Port your openHAB 2 REST API is listening on. Default: 8080
-`--protocol`        | Choose either HTTP or HTTPS. Default: HTTPS
-`--stats` / `-S`    | Get thing and item count for your openHAB 2. Supports perfdata. Mutually exclusive to `--item`
-`--item` / `-I`     | Check a specific item (see examples below). Mutually exclusive to `--stats`
-`--warning` / `-W`  | Value Icinga 2 should exit WARNING for (see examples)
-`--critical` / `-C` | Value Icinga 2 should exit CRITICAL for (see examples)
+| arg                 | explain
+| --------------------|----------------------------------------------------------------------
+| `--host` / `-H`     | **Required.** Host your openHAB 2 installation is running on
+| `--port` / `-P`     | Port your openHAB 2 REST API is listening on. Default: 8080
+| `--protocol`        | Choose either HTTP or HTTPS. Default: HTTPS
+| `--stats` / `-S`    | Get thing and item count for your openHAB 2. Supports perfdata. Mutually exclusive to `--item`
+| `--item` / `-I`     | Check a specific item (see examples below). Mutually exclusive to `--stats`
+| `--warning` / `-W`  | Value Icinga 2 should exit WARNING for (see examples)
+| `--critical` / `-C` | Value Icinga 2 should exit CRITICAL for (see examples)
