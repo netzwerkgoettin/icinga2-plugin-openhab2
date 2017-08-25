@@ -1,0 +1,18 @@
+name: icinga2-plugin-openhab2
+description: "file:///README.md"
+url: "https://github.com/sysadmama/icinga2-plugin-openhab2"
+tags: smarthome
+vendor: openhab2
+target: Environmental
+type: Plugin
+license: gplv3
+releases: 
+  - 
+    name: 0.1
+    description: "0.1 First release"
+    files: 
+      - 
+        name: check_openhab2.py
+        url: "file:///check_openhab2.py"
+        description: "0.1 First release"
+        checksum: ec3bd437e3bcedf18c119e560fde9f7c
