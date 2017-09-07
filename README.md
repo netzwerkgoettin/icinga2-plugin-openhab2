@@ -3,6 +3,7 @@
 1. [About](#whats-this-all-about)
 2. [Requirements](#requirements)
 3. [Arguments](#arguments)
+4. [Icinga 2 CheckCommand](#icinga-2-checkcommand)
 4. [Examples](#examples)
 5. [Contributing](#contributing)
 
@@ -32,6 +33,32 @@ And of course all items could be in unknown state when restarting; to avoid a lo
 | `--item` / `-I`     | Check a specific item (see examples below). Mutually exclusive to `--stats`
 | `--warning` / `-W`  | Value Icinga 2 should exit WARNING for (see [examples](#examples))
 | `--critical` / `-C` | Value Icinga 2 should exit CRITICAL for (see [examples](#examples))
+
+# Icinga 2 CheckCommand
+```
+object CheckCommand "openhab2" {
+    import "plugin-check-command"
+    command = [ PluginDir + "/check_openhab2.py" ]
+    arguments += {
+        "--protocol" = "$openhab2_protocol$"
+        "--host" = "$openhab2_host$"
+        "--port" = "$openhab2_port$"
+        "--item" = {
+		description = "openHAB 2 item name"
+		value = "$openhab2_item$"
+		}
+        "--warning" = "$openhab2_warning$"
+        "--critical" = "$openhab2_critical$"
+        "--stats" = {
+		description = "General openHAB 2 stats"
+		set_if = "$openhab2_stats$"
+		}
+        "--timeout" = "$openhab2_timeout$"
+    }
+    vars.openhab2_host = "$address$"
+    vars.openhab2_stats = false
+}
+```
 
 # Examples
 Performance data are processed in the following use cases:
