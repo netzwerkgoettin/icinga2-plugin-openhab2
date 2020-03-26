@@ -34,9 +34,9 @@ def openHAB_request(url):
         r = requests.get(url, timeout=10)
     except ConnectionError as e:
         print e
-        icinga_critical('REST API not responding') 
+        icinga_unknown('REST API not responding') 
     if r.status_code != 200:
-        icinga_critical('Item unknown, check name.')
+        icinga_unknown('Item unknown, check name.')
 
     data = r.json()
     return data
