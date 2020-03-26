@@ -33,7 +33,8 @@ And of course all items could be in unknown state when restarting; to avoid a lo
 | `--item` / `-I`     | Check a specific item (see examples below). Mutually exclusive to `--stats`
 | `--warning` / `-W`  | Value Icinga 2 should exit WARNING for (see [examples](#examples))
 | `--critical` / `-C` | Value Icinga 2 should exit CRITICAL for (see [examples](#examples))
-
+| `--invertcheck`     | Set to 'true' to invert check logic (see [examples](#examples))
+ 
 # Icinga 2 CheckCommand
 ```
 object CheckCommand "openhab2" {
@@ -49,6 +50,7 @@ object CheckCommand "openhab2" {
 		}
         "--warning" = "$openhab2_warning$"
         "--critical" = "$openhab2_critical$"
+        "--invertcheck" = "$openhab2_invertcheck$"
         "--stats" = {
 		description = "General openHAB 2 stats"
 		set_if = "$openhab2_stats$"
@@ -81,11 +83,25 @@ openHAB CRITICAL - Wetter_Temperatur=21.4;18;20;;
 
 ![Screenshot: Number Item Check Example](doc/screenshots/icingaweb2_number_example.jpg)
 
+#### Check number item with thresholds (inverted)
+```
+$ ./openhab2.py --host 10.8.0.10 --port 8080 --item Wetter_Temperatur --warning 5 --critical 0 --invertcheck true
+openHAB CRITICAL - Wetter_Temperatur=1.4;5;0;;
+```
+
+
 #### Check Switch item with threshold
 ```
 $ ./openhab2.py --host 10.8.0.10 --port 8080 --item Schlafzimmer_0_Fenster --warning OPEN
 openHAB OK - CLOSED
 ```
+
+#### Check Switch item with threshold (inverted)
+```
+$ ./openhab2.py --host 10.8.0.10 --port 8080 --item Schlafzimmer_0_Fenster --critical OPEN --invertcheck true
+openHAB CRITICAL - CLOSED
+```
+
 
 # Contributing
 If you're interested in contributing?

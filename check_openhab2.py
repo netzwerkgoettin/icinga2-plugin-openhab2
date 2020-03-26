@@ -55,6 +55,7 @@ def main():
 
     main_parser.add_argument('--warning', '-W', help='Optional when using --item. WARNING value; see docs.')
     main_parser.add_argument('--critical', '-C', help='Optional when using --item. CRITICAL value; see docs.')
+    main_parser.add_argument('--invertcheck', choices=['true', 'false'], default='false', help='Optional when using --item. Invert check; see docs.')
 
     args = main_parser.parse_args()
     restapi = args.protocol + '://' + args.host + ':{}'.format(args.port) + '/rest'
@@ -81,33 +82,56 @@ def main():
 
     elif args.item:
         itemvalue = openHAB_request(restapi + '/items/' + args.item)
-        if itemvalue['state'].isalpha() == True:
+
+        try:
+            float(itemvalue['state'].partition(' ')[0])
+            isalpha = False
+        except ValueError:
+            isalpha = True 
+
+        if isalpha:
             itemstate = str(itemvalue['state'])
             if args.critical:
                 if args.critical == itemstate:
-                    icinga_critical(itemstate)
+                    if args.invertcheck == 'true':
+                        icinga_ok(itemstate)
+                    else:
+                        icinga_critical(itemstate)
                 else:
-                    icinga_ok(itemstate)
+                    if args.invertcheck == 'true':
+                        icinga_critical(itemstate)
+                    else:
+                        icinga_ok(itemstate)
             elif args.warning:
                 if args.warning == itemstate:
-                    icinga_warning(itemstate)
+                    if args.ivertcheck == 'true':
+                        icinga_ok(itemstate)
+                    else:
+                        icinga_warning(itemstate)
                 else:
-                    icinga_ok(itemstate)
+                    if args.invertcheck == 'true':
+                        icinga_warning(itemstate)
+                    else:
+                        icinga_ok(itemstate)
             else:
                 icinga_ok(itemstate)
         else:
-            itemstate = float(itemvalue['state'])
+            itemstate = float(itemvalue['state'].partition(' ')[0])
             perfdata = args.item +'=' + str(itemstate) +';' +perfdata_warn +';' +perfdata_crit +';;'
             exit_msg = str(itemstate) +'|' + perfdata
 
             if args.critical:
                 crit = float(args.critical)
-                if itemstate > crit:
+                if itemstate > crit and args.invertcheck == 'false':
+                    icinga_critical(exit_msg)
+                if itemstate < crit and args.invertcheck == 'true':
                     icinga_critical(exit_msg)
 
             if args.warning:
                 warn = float(args.warning)
-                if itemstate > warn:
+                if itemstate > warn and args.invertcheck == 'false':
+                    icinga_warning(exit_msg)
+                if itemstate < warn and args.invertcheck == 'true':
                     icinga_warning(exit_msg)
 
             icinga_ok(exit_msg)
