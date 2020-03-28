@@ -53,6 +53,7 @@ def main():
     mode.add_argument('--stats', '-S', action='store_true', help='Get general statistics about your openHAB 2 installation.')
     mode.add_argument('--item', '-I', dest='item', help='Item to get state or value off.')
 
+    main_parser.add_argument('--units', '-U', help='Units from Item to get state or value off.')
     main_parser.add_argument('--warning', '-W', help='Optional when using --item. WARNING value; see docs.')
     main_parser.add_argument('--critical', '-C', help='Optional when using --item. CRITICAL value; see docs.')
 
@@ -97,9 +98,13 @@ def main():
                 icinga_ok(itemstate)
         else:
             itemstate = float(itemvalue['state'])
-            perfdata = args.item +'=' + str(itemstate) +';' +perfdata_warn +';' +perfdata_crit +';;'
-            exit_msg = str(itemstate) +'|' + perfdata
-
+            if args.units:
+                perfdata = args.item +'=' +str(itemstate) +str(args.units) +';' +perfdata_warn +';' +perfdata_crit +';;'
+                exit_msg = str(itemstate) + ' ' + str(args.units) + '|' + perfdata
+            else:
+                perfdata = args.item +'=' + str(itemstate) +';' +perfdata_warn +';' +perfdata_crit +';;'
+                exit_msg = str(itemstate) + '|' + perfdata
+                
             if args.critical:
                 crit = float(args.critical)
                 if itemstate > crit:
