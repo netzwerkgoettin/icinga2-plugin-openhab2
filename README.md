@@ -31,6 +31,7 @@ And of course all items could be in unknown state when restarting; to avoid a lo
 | `--protocol`        | Choose either HTTP or HTTPS. Default: HTTP
 | `--stats` / `-S`    | Get thing and item count for your openHAB 2. Supports perfdata. Mutually exclusive to `--item`
 | `--item` / `-I`     | Check a specific item (see examples below). Mutually exclusive to `--stats`
+| `--units` / `-U`    | Add units to Output, e.g % for Humidity or C/F for Temperature
 | `--warning` / `-W`  | Value Icinga 2 should exit WARNING for (see [examples](#examples))
 | `--critical` / `-C` | Value Icinga 2 should exit CRITICAL for (see [examples](#examples))
 
@@ -47,6 +48,7 @@ object CheckCommand "openhab2" {
 		description = "openHAB 2 item name"
 		value = "$openhab2_item$"
 		}
+	"--units" = "$openhab2_units$"
         "--warning" = "$openhab2_warning$"
         "--critical" = "$openhab2_critical$"
         "--stats" = {
@@ -75,8 +77,8 @@ openHAB OK - 36 things and 200 items in openHAB 2 system with UUID 02bb75e1-6195
 
 #### Check number item with thresholds
 ```
-$ ./openhab2.py --host 10.8.0.10 --port 8080 --item Wetter_Temperatur --warning 18 --critical 20
-openHAB CRITICAL - Wetter_Temperatur=21.4;18;20;;
+$ ./openhab2.py --host 10.8.0.10 --port 8080 --item Wetter_Temperatur --warning 18 --critical 20 --units '°C'
+openHAB CRITICAL - Wetter_Temperatur=21.4°C;18;20;;
 ```
 
 ![Screenshot: Number Item Check Example](doc/screenshots/icingaweb2_number_example.jpg)
