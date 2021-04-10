@@ -6,6 +6,7 @@ __version__  = '0.1'
 
 import argparse
 import requests
+from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError
 import sys
 
@@ -29,12 +30,16 @@ def icinga_unknown(msg):
     print('openHAB UNKNOWN - ' + msg)
     sys.exit(3)
 
-def openHAB_request(url):
+def openHAB_request(url, auth):
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=10, auth=auth)
     except ConnectionError as e:
-        print e
+        print(e)
         icinga_unknown('REST API not responding') 
+    if r.status_code == 401:
+        icinga_unknown('Item unknown, authentication required.')
+    if r.status_code == 403:
+        icinga_unknown('Item unknown, authentication failed.')
     if r.status_code != 200:
         icinga_unknown('Item unknown, check name.')
 
@@ -56,8 +61,15 @@ def main():
     main_parser.add_argument('--warning', '-W', help='Optional when using --item. WARNING value; see docs.')
     main_parser.add_argument('--critical', '-C', help='Optional when using --item. CRITICAL value; see docs.')
 
+    main_parser.add_argument('--user', '-U', help='Optional when authentication is needed. USER value; see docs.')
+    main_parser.add_argument('--password', '-p', help='Optional when authentication is needed. PASSWORD value; see docs.')
+
     args = main_parser.parse_args()
     restapi = args.protocol + '://' + args.host + ':{}'.format(args.port) + '/rest'
+
+    auth = None
+    if args.user:
+        auth = HTTPBasicAuth(args.user, '' if args.password is None else args.password)
 
     if args.port < 1 or args.port > 65535:
         icinga_unknown('Port has to be something between 1 and 65535.')
@@ -73,14 +85,14 @@ def main():
         perfdata_crit = ''
 
     if args.stats:
-        itemcount = str(len(openHAB_request(restapi + '/items?recursive=true')))
-        thingcount = str(len(openHAB_request(restapi + '/things')))
-        systemuuid = requests.get(restapi + '/uuid')
+        itemcount = str(len(openHAB_request(restapi + '/items?recursive=true', auth)))
+        thingcount = str(len(openHAB_request(restapi + '/things', auth)))
+        systemuuid = requests.get(restapi + '/uuid', auth=auth)
         exit_msg = thingcount + ' things and ' + itemcount + ' items in openHAB 2 system with UUID ' + systemuuid.text + '.|openhab_items=' + itemcount + ';;;; openhab_things=' + thingcount + ';;;;'
         icinga_ok(exit_msg)
 
     elif args.item:
-        itemvalue = openHAB_request(restapi + '/items/' + args.item)
+        itemvalue = openHAB_request(restapi + '/items/' + args.item, auth)
         if itemvalue['state'].isalpha() == True:
             itemstate = str(itemvalue['state'])
             if args.critical:
