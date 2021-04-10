@@ -35,7 +35,7 @@ def openHAB_request(url, auth):
         r = requests.get(url, timeout=10, auth=auth)
     except ConnectionError as e:
         print(e)
-        icinga_unknown('REST API not responding') 
+        icinga_unknown('REST API not responding')
     if r.status_code == 401:
         icinga_unknown('Item unknown, authentication required.')
     if r.status_code == 403:
@@ -47,15 +47,15 @@ def openHAB_request(url, auth):
     return data
 
 def main():
-    main_parser = argparse.ArgumentParser(description=""" Icinga plugin to integrate openHAB 2 """)
+    main_parser = argparse.ArgumentParser(description=""" Icinga plugin to integrate openHAB """)
 
-    main_parser.add_argument('--protocol', choices=['http', 'https'], default='http', help='Runs your openHAB 2 on HTTP or HTTPS? Default: HTTP.')
-    main_parser.add_argument('--host', '-H', dest='host', help='Host running openHAB 2 instance.')
-    main_parser.add_argument('--port', '-P', type=int, default=8080, dest='port', help='Port openHAB 2 is running on (default: 8080).')
+    main_parser.add_argument('--protocol', choices=['http', 'https'], default='http', help='Runs your openHAB on HTTP or HTTPS? Default: HTTP.')
+    main_parser.add_argument('--host', '-H', dest='host', help='Host running openHAB instance.')
+    main_parser.add_argument('--port', '-P', type=int, default=8080, dest='port', help='Port openHAB is running on (default: 8080).')
 ##    main_parser.add_argument('--timeout', '-T', type=int, default=10, help='Connection timeout, defaults to 10 seconds.')
 
     mode = main_parser.add_mutually_exclusive_group()
-    mode.add_argument('--stats', '-S', action='store_true', help='Get general statistics about your openHAB 2 installation.')
+    mode.add_argument('--stats', '-S', action='store_true', help='Get general statistics about your openHAB installation.')
     mode.add_argument('--item', '-I', dest='item', help='Item to get state or value off.')
 
     main_parser.add_argument('--warning', '-W', help='Optional when using --item. WARNING value; see docs.')
@@ -88,7 +88,7 @@ def main():
         itemcount = str(len(openHAB_request(restapi + '/items?recursive=true', auth)))
         thingcount = str(len(openHAB_request(restapi + '/things', auth)))
         systemuuid = requests.get(restapi + '/uuid', auth=auth)
-        exit_msg = thingcount + ' things and ' + itemcount + ' items in openHAB 2 system with UUID ' + systemuuid.text + '.|openhab_items=' + itemcount + ';;;; openhab_things=' + thingcount + ';;;;'
+        exit_msg = thingcount + ' things and ' + itemcount + ' items in openHAB system with UUID ' + systemuuid.text + '.|openhab_items=' + itemcount + ';;;; openhab_things=' + thingcount + ';;;;'
         icinga_ok(exit_msg)
 
     elif args.item:
