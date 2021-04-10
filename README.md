@@ -8,7 +8,7 @@
 5. [Contributing](#contributing)
 
 # What's this all about?
-`check_openhab2.py` helps you to integrate your openHAB 2 installation with Icinga 2.
+`check_openhab.py` helps you to integrate your openHAB (2 or 3) installation with Icinga 2.
 
 One difficulty is, that there are naturally several different types of items:
 * Number items like temperature or humidity
@@ -20,62 +20,66 @@ One difficulty is, that there are naturally several different types of items:
 And of course all items could be in unknown state when restarting; to avoid a lot of unnecessary noise you should use a persistence service of your choice to get all items in defined (*last known*) states on restart.
 
 # Requirements
-* openHAB 2 - openHAB 1.x will **not** work!
+* openHAB (2 or 3) - openHAB 1.x will **not** work!
 * python-2.7.x with *argparse*, *sys* and *requests* enabled
 
 # Arguments
 | Argument            | Description
 | --------------------|----------------------------------------------------------------------
-| `--host` / `-H`     | **Required.** Host your openHAB 2 installation is running on
-| `--port` / `-P`     | Port your openHAB 2 REST API is listening on. Default: 8080
+| `--host` / `-H`     | **Required.** Host your openHAB installation is running on
+| `--port` / `-P`     | Port your openHAB REST API is listening on. Default: 8080
 | `--protocol`        | Choose either HTTP or HTTPS. Default: HTTP
 | `--stats` / `-S`    | Get thing and item count for your openHAB 2. Supports perfdata. Mutually exclusive to `--item`
 | `--item` / `-I`     | Check a specific item (see examples below). Mutually exclusive to `--stats`
 | `--warning` / `-W`  | Value Icinga 2 should exit WARNING for (see [examples](#examples))
 | `--critical` / `-C` | Value Icinga 2 should exit CRITICAL for (see [examples](#examples))
+| `--user` / `-U`     | Username which should be used to authenticate against openHAB 3 (or set API token here when)
+| `--password` / `-p` | Password which should be used to authenticate against openHAB 3
 
 # Icinga 2 CheckCommand
 ```
-object CheckCommand "openhab2" {
+object CheckCommand "openhab" {
     import "plugin-check-command"
-    command = [ PluginDir + "/check_openhab2.py" ]
+    command = [ PluginDir + "/check_openhab.py" ]
     arguments += {
-        "--protocol" = "$openhab2_protocol$"
-        "--host" = "$openhab2_host$"
-        "--port" = "$openhab2_port$"
+        "--protocol" = "$openhab_protocol$"
+        "--host" = "$openhab_host$"
+        "--port" = "$openhab_port$"
         "--item" = {
 		description = "openHAB 2 item name"
-		value = "$openhab2_item$"
+		value = "$openhab_item$"
 		}
-        "--warning" = "$openhab2_warning$"
-        "--critical" = "$openhab2_critical$"
+        "--warning" = "$openhab_warning$"
+        "--critical" = "$openhab_critical$"
         "--stats" = {
-		description = "General openHAB 2 stats"
-		set_if = "$openhab2_stats$"
+		description = "General openHAB stats"
+		set_if = "$openhab_stats$"
 		}
-        "--timeout" = "$openhab2_timeout$"
+        "--timeout" = "$openhab_timeout$"
+	"--user" = "$openhab_user$"
+	"--password" = "$openhab_password$"
     }
-    vars.openhab2_host = "$address$"
-    vars.openhab2_stats = false
+    vars.openhab_host = "$address$"
+    vars.openhab_stats = false
 }
 ```
 
 # Examples
 Performance data are processed in the following use cases:
-* when using `check_openhab2.py` with `--stats` 
+* when using `check_openhab.py` with `--stats` 
 * when using the script with `--item` **and** it is an item of type *Number*
 
-#### Getting openHAB 2 stats
+#### Getting openHAB stats
 ```
-$ ./openhab2.py --host 10.8.0.10 --port 8080 --protocol http --stats
-openHAB OK - 36 things and 200 items in openHAB 2 system with UUID 02bb75e1-6195-4154-ae0f-c0b6a5ee6709.|openhab_items=200;;;; openhab_things=36;;;;
+$ ./openhab.py --host 10.8.0.10 --port 8080 --protocol http --stats
+openHAB OK - 36 things and 200 items in openHAB system with UUID 02bb75e1-6195-4154-ae0f-c0b6a5ee6709.|openhab_items=200;;;; openhab_things=36;;;;
 ```
 
 ![Screenshot: Stats Check Example](doc/screenshots/icingaweb2_stats_example.jpg)
 
 #### Check number item with thresholds
 ```
-$ ./openhab2.py --host 10.8.0.10 --port 8080 --item Wetter_Temperatur --warning 18 --critical 20
+$ ./openhab.py --host 10.8.0.10 --port 8080 --item Wetter_Temperatur --warning 18 --critical 20
 openHAB CRITICAL - Wetter_Temperatur=21.4;18;20;;
 ```
 
@@ -83,7 +87,7 @@ openHAB CRITICAL - Wetter_Temperatur=21.4;18;20;;
 
 #### Check Switch item with threshold
 ```
-$ ./openhab2.py --host 10.8.0.10 --port 8080 --item Schlafzimmer_0_Fenster --warning OPEN
+$ ./openhab.py --host 10.8.0.10 --port 8080 --item Schlafzimmer_0_Fenster --warning OPEN
 openHAB OK - CLOSED
 ```
 
