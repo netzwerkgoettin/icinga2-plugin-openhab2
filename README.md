@@ -46,7 +46,7 @@ object CheckCommand "openhab" {
         "--host" = "$openhab_host$"
         "--port" = "$openhab_port$"
         "--item" = {
-		description = "openHAB 2 item name"
+		description = "openHAB item name"
 		value = "$openhab_item$"
 		}
         "--warning" = "$openhab_warning$"
